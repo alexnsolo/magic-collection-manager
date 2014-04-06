@@ -1,2 +1,6 @@
 **/.DS_Store
 node_modules
+db/lists
+db/collection
+images/*.jpg
+frontend/bower_components

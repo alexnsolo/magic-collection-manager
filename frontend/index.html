@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" ng-app="mcm-app">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MCM</title>
+
+        <!-- If you are using CSS version, only link these 2 files, you may add app.css to use for your overrides if you like. -->
+        <link rel="stylesheet" href="bower_components/foundation/css/normalize.css" />
+        <link rel="stylesheet" href="bower_components/foundation/css/foundation.css" />
+        <link rel="stylesheet" href="bower_components/allmighty-autocomplete/style/autocomplete.css" />
+        <link rel="stylesheet" href="assets/css/style.css" />
+
+        <script src="bower_components/modernizr/modernizr.js"></script>
+
+    </head>
+    <body>
+        <div ng-controller="RootController">
+            <nav class="top-bar" data-topbar>
+                <ul class="title-area">
+                    <li class="name">
+                        <h1><a href="#">Magic Collection Manager</a></h1>
+                    </li>
+                </ul>
+
+                <section class="top-bar-section">
+                    <ul class="left">
+                        <li class="active"><a href="#collection">Collection</a></li>
+                        <li><a href="#lists">Lists</a></li>
+                        <li><a href="#oracle">Oracle</a></li>
+                    </ul>
+                </section>
+            </nav>
+
+            <div class="content">
+                <div ng-show="displaying == 'collection'" ng-controller="CollectionController">
+                    <div ng-repeat="error in errors" data-alert class="alert-box warning radius">
+                        {{error}}
+                    </div>
+                    <form>
+                        <div class="row">
+                            <div class="large-11 columns">
+                                <input type="text" ng-model="name" placeholder="Search by Name" />
+                            </div>
+                            <div class="large-1 columns">
+                                <button type="button" ng-click="search()">Go</button>
+                        </div>
+                        <div class="row">
+                            <div class="large-4 columns">
+                                <label for="page-size" class="right inline"># Per Page</label>
+                            </div>
+                            <div class="large-2 columns">
+                                <select id="page-size" ng-model="pageSize" ng-options="size for size in availablePageSizes"></select>
+                            </div>
+                            <div class="large-4 columns">
+                                <label for="sort-by" class="right inline">Sort</label>
+                            </div>
+                            <div class="large-2 columns">
+                                <select id="sort-by" ng-model="sort" ng-options="s for s in sorts"></select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/foundation/js/foundation.min.js"></script>
+        <script>
+            $(document).foundation();
+        </script>
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="bower_components/allmighty-autocomplete/script/autocomplete.js"></script>
+        <script src="assets/js/app.js"></script>
+    </body>
+</html>
