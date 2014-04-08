@@ -61,6 +61,19 @@
                             </div>
                         </div>
                     </form>
+                    <hr/>
+                    <table class="card-list">
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                        </tr>
+                        <tr ng-repeat="card in results.cards">
+                            <td><img ng-src="/image/{{card.id}}" class="card-thumbnail" /></td>
+                            <td>{{card.name}}</td>
+                            <td>{{card.quantity}}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>

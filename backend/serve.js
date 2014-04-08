@@ -5,6 +5,7 @@ var express = require("express");
 var uuid = require("node-uuid");
 var _ = require("lodash");
 var queries = require("./queries");
+var imagecache = require("./imagecache");
 
 var app = express();
 app.use(express.static("frontend"));
@@ -46,6 +47,15 @@ app.get("/update/:query", function(req, res) {
         res.send({"error": "Valid authentication required."});
     } else {
         queries.resolve("write", req.params.query, req, res);
+    }
+});
+
+app.get("/image/:id", function(req, res) {
+    var id = req.param("id");
+    if (id > 0) { // TODO actual real person check
+        imagecache.get(id, res);
+    } else {
+        res.send(404, "");
     }
 });
 

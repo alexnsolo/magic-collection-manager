@@ -4,3 +4,7 @@
     background-repeat: no-repeat;
     min-height: 30px;
 }
+
+.card-list .card-thumbnail {
+    height: 40px;
+}

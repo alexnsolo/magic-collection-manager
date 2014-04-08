@@ -23,48 +23,22 @@ var report = function (res) {
     };
 };
 
-var assembleCard = function (skeletal, callback) {
-    return q.ninvoke(db.sets, "findOne", {_id: skeletal.oid}).
-    then(function(card) {
-        if (!card) {
-            callback("Invalid card reference for " + skeletal.name);
-        } else {
-            var result = {};
-            _.assign(result, skeletal, card);
-            callback(null, result);
-        }
-    });
-};
-
 Queries.read.collection = function(req, res) {
     var pageNum = req.query.pageNum;
     var pageSize = req.query.pageSize;
-    var filter = {};
-    var sort = {name: 1};
 
     var result = {};
 
-    q.ninvoke(db.collections, "count", filter)
-    .then(function(count) {
-        result.count = count;
-        return q.ninvoke(db.collections, "find", filter);
+    q.ninvoke(db, "get", "select count(name) as \"count\" from collection_cards")
+    .then(function(countResult) {
+        result.count = countResult.count;
+        return q.ninvoke(db, "all", "select id, name, quantity from collection_cards order by name asc limit ? offset ?", [
+            pageSize,
+            (pageNum - 1) * pageSize
+        ]);
     })
-    .then(function(cursor) {
-        result.cards = [];
-        cursor
-        .sort(sort)
-        .skip(pageNum * pageSize)
-        .limit(pageSize)
-        .each(function(card) {
-            console.log(card);
-            if (card!=null) {
-                q.nfcall(assembleCard, card)
-                .then(function(fullCard) {
-                    result.cards.push(card);
-                })
-                .catch(report(res));
-            }
-        });
+    .then(function(cards) {
+        result.cards = cards;
     })
     .then(function() {
         res.send(result);

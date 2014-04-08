@@ -1,6 +1,4 @@
 module.exports = {
-    "storePath": "db",
-    "imagePath": "images",
     "host": "localhost",
     "port": 8088,
     "password": {
