@@ -1,3 +1,97 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "Helvetica", "Arial", sans-serif;
+    background-color: #EEE;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+}
+
+td, th {
+    text-align: left;
+    vertical-align: middle;
+    padding: 2px;
+}
+
+.row {
+    display: block;
+    white-space: nowrap;
+}
+
+.row.right {
+    text-align: right;
+}
+
+.row > * {
+    display: inline-block;
+    white-space: normal;
+    text-align: left;
+}
+
+.row .col-1 { width: 8.33%; }
+.row .col-2 { width: 16.67%; }
+.row .col-3 { width: 25%%; }
+.row .col-4 { width: 33.33%; }
+.row .col-5 { width: 41.67%; }
+.row .col-6 { width: 50%; }
+.row .col-7 { width: 58.33%; }
+.row .col-8 { width: 66.67%; }
+.row .col-9 { width: 75%; }
+.row .col-10 { width: 83.33%; }
+.row .col-11 { width: 91.67%; }
+.row .col-12 { width: 100%; }
+
+.form input,
+.form button,
+.form select {
+    font-size: inherit;
+    display: inline-block;
+    padding: 4px !important;
+}
+
+.form select {
+    border: 1px solid #999;
+}
+
+.form label {
+    min-width: 100px;
+}
+
+.top-bar {
+    background-color: #111;
+}
+
+.top-bar .menu ul li {
+    font-size: 18px;
+    background-color: rgba(100%, 100%, 100%, 0.2);
+    display: inline-block;
+    padding: 16px 12px;
+    color: #DDD;
+    cursor: pointer;
+}
+
+.top-bar .menu ul li.active,
+.top-bar .menu ul li:hover {
+    background-color: rgba(100%, 100%, 100%, 0.4);
+}
+
+.content {
+    padding: 5px;
+}
+
+tr:nth-child(even) > * {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
 .loading {
     background-image: "../images/ajax-loader.gif";
     background-position: center center;
@@ -5,6 +99,25 @@
     min-height: 30px;
 }
 
-.card-list .card-thumbnail {
+.card-list .thumbnail {
     height: 40px;
+}
+
+#thumbnail-viewer {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+@media (min-width: 641px) {
+    .content {
+        padding: 5px calc((100% - 1000px) / 2);
+    }
+
+    .top-bar {
+        padding: 0px calc((100% - 1000px) / 2);
+    }
 }

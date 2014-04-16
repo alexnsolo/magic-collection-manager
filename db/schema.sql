@@ -10,7 +10,7 @@ create table if not exists cards(
     type text,
     expansion integer references expansions(id) on delete cascade,
     rarity text,
-    manacost text,
+    manacost varchar(50),
     fulltext text,
     full blob
 );
@@ -41,5 +41,5 @@ create table if not exists collection_list(
 );
 
 drop view if exists collection_cards;
-create view collection_cards as select max(card.id) as id, card.name as name, count(coll.id) as quantity from cards as card
-    inner join collection as coll on card.id = coll.card group by card.name order by card.name asc;
+create view collection_cards as select max(card.id) as id, card.name as name, card.manacost as manacost, count(coll.id) as quantity from cards as card
+    inner join collection as coll on card.id = coll.card group by card.name, card.manacost order by card.name asc;

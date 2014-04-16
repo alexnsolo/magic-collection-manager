@@ -9,6 +9,8 @@ var imagecache = require("./imagecache");
 
 var app = express();
 app.use(express.static("frontend"));
+app.use(express.json());
+app.use(express.urlencoded());
 
 app.get("/config", function(req, res) {
     res.send({
@@ -42,7 +44,7 @@ app.get("/query/:query", function(req, res) {
     queries.resolve("read", req.params.query, req, res);
 });
 
-app.get("/update/:query", function(req, res) {
+app.post("/query/:query", function(req, res) {
     if (!checkLogin(req)) {
         res.send({"error": "Valid authentication required."});
     } else {
@@ -52,8 +54,20 @@ app.get("/update/:query", function(req, res) {
 
 app.get("/image/:id", function(req, res) {
     var id = req.param("id");
-    if (id > 0) { // TODO actual real person check
-        imagecache.get(id, res);
+    if (/^[0-9]+$/.test(id)) {
+        imagecache.getImage(id, res);
+    } else {
+        res.send(404, "");
+    }
+});
+
+app.get("/icon/:id", function(req, res) {
+    var id = req.param("id");
+    if (/^P?[RGBUW]$/.test(id) ||
+            /^2[RGBUW]$/.test(id) ||
+            /^[0-9]+$/.test(id) ||
+            id == "SNOW") {
+        imagecache.getIcon(id, res);
     } else {
         res.send(404, "");
     }

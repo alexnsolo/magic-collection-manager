@@ -1,8 +1,9 @@
 {
     "name": "magic-collection-manager",
     "dependencies": {
-        "foundation": "5.2.*",
+        "allmighty-autocomplete": "*",
         "angular": "1.2.16",
-        "allmighty-autocomplete": "*"
+        "reset-css": "*",
+        "lodash": "2.4.*"
     }
 }

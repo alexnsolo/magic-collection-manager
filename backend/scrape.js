@@ -9,22 +9,29 @@ var url = require("url");
 module.exports.scrapeSets = function(callback) {
     q.nfcall(tutor.sets)
     .then(function(sets) {
+        var promises = [];
         _.forEach(sets, function(set) {
             // always scrape promos
             if (set.substring(0, 5) == "Promo") {
-                scrapeSet(set, callback);
+                promises.push(q.fcall(scrapeSet, set));
             } else {
-                q.ninvoke(db, "all", "select id from expansions where name = ?", [set])
-                .then(function (results) {
-                    if (results.length == 0) {
-                        scrapeSet(set, callback);
-                    }
-                })
-                .catch(callback);
+                promises.push(
+                    q.ninvoke(db, "all", "select id from expansions where name = ?", [set])
+                    .then(function (results) {
+                        if (results.length == 0) {
+                            return q.fcall(scrapeSet, set);
+                        }
+                    })
+                );
             }
         });
+        return q.all(promises);
     })
-    .catch(callback);
+    .then(function() {
+        console.log("Done");
+    })
+    .catch(callback)
+    .done();
 };
 
 var getCardId = function(cardObj) {
@@ -37,7 +44,7 @@ var scrapeSet = function(set, callback) {
 
     var setId;
     // add new set (or ignore if duplicate)
-    q.ninvoke(db, "run", "insert or ignore into expansions (name) values (?)", [set])
+    return q.ninvoke(db, "run", "insert or ignore into expansions (name) values (?)", [set])
     // get inserted ID (or the old one)
     .then(function() {
         return q.ninvoke(db, "get", "select id from expansions where name = ?", [set]);
@@ -49,6 +56,7 @@ var scrapeSet = function(set, callback) {
         return q.nfcall(tutor.set, set);
     })
     .then(function(cards) {
+        var promises = [];
         // insert each
         _.forEach(cards, function(card) {
             // remove redundant versions
@@ -56,22 +64,23 @@ var scrapeSet = function(set, callback) {
             // replace letters with more easily-typable ones
             card.name = card.name.replace("Æ", "AE");
             // insert
-            q.ninvoke(db, "run", "insert or ignore into cards (id, name, type, expansion, rarity, manacost, fulltext, full) " +
-                    "values (?, ?, ?, ?, ?, ?, ?, ?)", [
-                        getCardId(card),
-                        card.name,
-                        card.types[0],
-                        setId,
-                        card.rarity,
-                        card.mana_cost,
-                        card.text,
-                        JSON.stringify(card)
-                    ])
-            .then(function() {
-                console.log("Scraped " + card.name + " (" + card.expansion + ")");
-            })
-            .catch(callback);
+            promises.push(
+                q.ninvoke(db, "run", "insert or ignore into cards (id, name, type, expansion, rarity, manacost, fulltext, full) " +
+                        "values (?, ?, ?, ?, ?, ?, ?, ?)", [
+                            getCardId(card),
+                            card.name,
+                            card.types[0],
+                            setId,
+                            card.rarity,
+                            card.mana_cost,
+                            card.text,
+                            JSON.stringify(card)
+                        ])
+                .then(function() {
+                    console.log("Scraped " + card.name + " (" + card.expansion + ")");
+                })
+            );
         });
-    })
-    .catch(callback);
+        return q.all(promises);
+    });
 };
