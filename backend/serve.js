@@ -63,7 +63,7 @@ app.get("/image/:id", function(req, res) {
 
 app.get("/icon/:id", function(req, res) {
     var id = req.param("id");
-    if (/^[RGBUW]P?$/.test(id) ||
+    if (/^[XYZRGBUW]P?$/.test(id) ||
             /^2[RGBUW]$/.test(id) ||
             /^[0-9]+$/.test(id) ||
             id == "SNOW") {

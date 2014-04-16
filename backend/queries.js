@@ -2,7 +2,7 @@
 
 var _ = require("lodash");
 var db = require("./db");
-var q = require("Q");
+var q = require("q");
 
 var Queries = {
     "read": {},
