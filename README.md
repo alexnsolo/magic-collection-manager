@@ -1,3 +1,5 @@
+status: not even close to alpha
+
 # Magic Collection Manager
 Managing silly things for silly reasons.
 
