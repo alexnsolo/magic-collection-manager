@@ -47,7 +47,7 @@
                         </tr>
                         <tr ng-repeat="card in results.cards" ng-click="thumbnail(card.id)">
                             <td>
-                                <img ng-repeat="cost in parseCost(card.manacost)" ng-src="/icon/{{cost}}" height="16" />
+                                <img ng-repeat="cost in parseCost(card.manacost) track by $index" ng-src="/icon/{{cost}}" height="16" />
                             </td>
                             <td>{{card.name}}</td>
                             <td>{{card.quantity}}</td>

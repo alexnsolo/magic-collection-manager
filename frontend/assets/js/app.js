@@ -82,7 +82,7 @@ window.CollectionController = function($scope, $http) {
 
     $scope.parseCost = function(cost) {
         if (cost == null) return [];
-        return cost.substring(1, cost.length - 1).replace("/", "").split("}{");
+        return cost.substring(1, cost.length - 1).replace(/\//g, "").split("}{");
     };
 };
 
