@@ -8,7 +8,6 @@ var queries = require("./queries");
 var imagecache = require("./imagecache");
 
 var app = express();
-app.use(express.static("frontend"));
 app.use(express.json());
 app.use(express.urlencoded());
 
@@ -72,5 +71,12 @@ app.get("/icon/:id", function(req, res) {
         res.send(404, "");
     }
 });
+
+// hack time GO
+app.use(express.static("frontend"));
+app.get(/^\/[a-z\/]*$/, function(req, res) {
+    res.sendfile("frontend/index.html");
+});
+// end hack time (just kidding, it's always hack time)
 
 app.listen(config.port, config.host);

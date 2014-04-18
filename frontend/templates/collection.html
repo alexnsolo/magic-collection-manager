@@ -1,0 +1,32 @@
+<div ng-controller="CollectionController">
+    <div ng-repeat="error in errors" class="message error">
+        {{error}}
+    </div>
+    <!--<form class="form">
+        <div class="row">
+            <input class="col-12" type="text" ng-model="name" placeholder="Search by Name" />
+        </div>
+        <label for="page-size" class="right inline"># Per Page</label>
+        <select id="page-size" ng-model="pageSize" ng-options="size for size in availablePageSizes"></select>
+        <label for="sort-by">Sort</label>
+        <select id="sort-by" ng-model="sort" ng-options="s for s in sorts"></select>
+        <button type="button" ng-click="search()">Go</button>
+    </form>
+    <hr/>-->
+    <table class="card-list">
+        <tr>
+            <th>Cost</td>
+            <th>Name</th>
+            <th>Qty</th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="card in results.cards" ng-click="thumbnail(card.id)">
+            <td>
+                <img ng-repeat="cost in parseCost(card.manacost) track by $index" ng-src="/icon/{{cost}}" height="16" />
+            </td>
+            <td>{{card.name}}</td>
+            <td>{{card.quantity}}</td>
+            <td>(i)</td>
+        </tr>
+    </table>
+</div>

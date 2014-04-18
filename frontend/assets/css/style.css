@@ -99,17 +99,19 @@ tr:nth-child(even) > * {
     min-height: 30px;
 }
 
-.card-list .thumbnail {
-    height: 40px;
+.message {
+    padding: 10px;
+    margin: 5px;
 }
 
-#thumbnail-viewer {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    text-align: center;
+.message.error {
+    border: 1px solid #633;
+    background-color: #c99;
+}
+
+.message.success {
+    border: 1px solid #363;
+    background-color: #9c9;
 }
 
 @media (min-width: 641px) {

@@ -1,14 +1,13 @@
 "use strict";
 
-var app = angular.module("mcm-app", ["autocomplete"]);
-
 var authHeaders;
 
-window.RootController = function($scope, $http) {
+var app = angular.module("mcm-app", ["autocomplete"])
+.controller("RootController", function($rootScope, $scope, $http, $location) {
     $scope.loginRequired = true;
     $scope.auth = "";
     $scope.isLoggedIn = false;
-    $scope.active = "collection";
+    $scope.view = null;
 
     $http.get("/config").success(function(data) {
         $scope.loginRequired = data.passwordRequired;
@@ -23,15 +22,45 @@ window.RootController = function($scope, $http) {
     };
 
     $scope.isActive = function(view) {
-        return $scope.active == view ? "active" : false;
+        return $scope.view.view == view ? "active" : false;
     };
 
-    $scope.makeActive = function(view) {
-        $scope.active = view;
+    $scope.setView = function(viewState) {
+        $scope.view = {
+            template: "/templates/" + viewState.view + ".html",
+            params: viewState.params
+        };
     };
-};
 
-window.CollectionController = function($scope, $http) {
+    $scope.makeActive = function(viewString, dontPush) {
+        var params = $scope.getViewParams(viewString);
+        if (!$scope.view || JSON.stringify(params) != JSON.stringify($scope.view.params)) {
+            var viewState = {
+                "view": params.length > 0 ? params[0] : "collection",
+                "params": params
+            };
+            $scope.setView(viewState);
+            if (!dontPush) {
+                $location.path(viewString);
+            }
+        }
+    };
+
+    window.addEventListener("popstate", function(e) {
+        $scope.makeActive($location.path(), true);
+    });
+
+    $scope.$on("$locationChangeStart", function() {
+        $scope.makeActive($location.path(), true);
+    });
+
+    $scope.getViewParams = function(viewString) {
+        return _.filter(viewString.split("/"), function(i) { return i != ""});
+    };
+
+    $scope.makeActive($location.path(), true);
+})
+.controller("CollectionController", function($scope, $http) {
     $scope.currentPage = 1;
     $scope.pageSize = 30;
     $scope.availablePageSizes = [15, 30, 50, 100];
@@ -53,7 +82,7 @@ window.CollectionController = function($scope, $http) {
     var doRequest = function() {
         $scope.loading = true;
         $scope.errors = [];
-        $http.get("query/collection", {headers: authHeaders, params: request})
+        $http.get("/query/collection", {headers: authHeaders, params: request})
         .success(function(data) {
             $scope.results = data;
         })
@@ -84,24 +113,24 @@ window.CollectionController = function($scope, $http) {
         if (cost == null) return [];
         return cost.substring(1, cost.length - 1).replace(/\//g, "").split("}{");
     };
-};
-
-window.AddController = function($scope, $http, $q) {
-    var baseExp = {"name": "(other)", "id": null};
+})
+.controller("AddController", function($scope, $http, $q) {
+    var baseExp = {"name": "(other)", "id": -1};
 
     $scope.name = "";
     $scope.matchedExpansion = null;
     $scope.expansions = [baseExp];
     $scope.foil = false;
     $scope.alternateArt = false;
-    $scope.added = [];
     $scope.quantity = 1;
     $scope.quantities = _.range(1, 100);
     $scope.autocompletions=[];
+    $scope.added = [];
+    $scope.errors = [];
 
     $scope.getNameSuggestions = function() {
         if ($scope.name.length > 1) {
-            $http.get("query/autoCompleteCardName", {headers: authHeaders, params: {"name": $scope.name}})
+            $http.get("/query/autoCompleteCardName", {headers: authHeaders, params: {"name": $scope.name}})
             .success(function(data) {
                 $scope.autocompletions = data;
             })
@@ -113,12 +142,12 @@ window.AddController = function($scope, $http, $q) {
         }
     };
 
-    $scope.getAvailableExpansions = function() {
-        $http.get("query/expansionsForCard", {headers: authHeaders, params: {"name": $scope.name}})
+    $scope.getAvailableExpansions = function(name) {
+        $http.get("/query/expansionsForCard", {headers: authHeaders, params: {"name": name}})
         .success(function(data) {
             data.push(baseExp);
             $scope.expansions = data;
-            $scope.matchedExpansion = data[0];
+            $scope.matchedExpansion = data[0].id;
         })
         .error(function() {
             $scope.expansions = [baseExp];
@@ -126,9 +155,20 @@ window.AddController = function($scope, $http, $q) {
     };
 
     $scope.addCard = function() {
-        return $http.post("query/addCardToCollection", {"id": $scope.matchedExpansion}, {headers: authHeaders})
+        var card = {
+            "id": $scope.matchedExpansion,
+            "name": $scope.name,
+            "foil": $scope.foil,
+            "alternateArt": $scope.alternateArt,
+            "quantity": $scope.quantity
+        };
+        $scope.errors = [];
+        return $http.post("/query/addCardToCollection", card, {headers: authHeaders})
         .success(function() {
-            $scope.added.push($scope.name);
+            $scope.added.unshift(card);
+            while ($scope.added.length > 10) {
+                $scope.added.pop();
+            }
             $scope.name = "";
             $scope.expansions = [baseExp];
             $scope.foil = false;
@@ -136,7 +176,11 @@ window.AddController = function($scope, $http, $q) {
             $scope.quantity = 1;
         })
         .error(function(err) {
+            $scope.errors.push(err);
             console.log(err);
         });
     };
-};
+})
+.config(function($locationProvider) {
+    $locationProvider.html5Mode(true);
+});
