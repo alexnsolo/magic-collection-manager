@@ -2,31 +2,76 @@
     <div ng-repeat="error in errors" class="message error">
         {{error}}
     </div>
-    <!--<form class="form">
-        <div class="row">
+    <form class="form">
+        <!--<div class="row">
             <input class="col-12" type="text" ng-model="name" placeholder="Search by Name" />
-        </div>
+        </div>-->
         <label for="page-size" class="right inline"># Per Page</label>
         <select id="page-size" ng-model="pageSize" ng-options="size for size in availablePageSizes"></select>
-        <label for="sort-by">Sort</label>
-        <select id="sort-by" ng-model="sort" ng-options="s for s in sorts"></select>
+        <!--<label for="sort-by">Sort</label>
+        <select id="sort-by" ng-model="sort" ng-options="s for s in sorts"></select>-->
         <button type="button" ng-click="search()">Go</button>
     </form>
-    <hr/>-->
+    <hr/>
     <table class="card-list">
         <tr>
             <th>Cost</td>
             <th>Name</th>
+            <th class="mobile-hide">Type</th>
+            <th class="mobile-hide">Rarity</th>
             <th>Qty</th>
             <th></th>
         </tr>
         <tr ng-repeat="card in results.cards" ng-click="thumbnail(card.id)">
             <td>
-                <img ng-repeat="cost in parseCost(card.manacost) track by $index" ng-src="/icon/{{cost}}" height="16" />
+                <img ng-repeat="cost in parseCost(card.manacost) track by $index" ng-src="/icon/{{cost}}" alt="{{cost}}" height="16" />
             </td>
             <td>{{card.name}}</td>
+            <td class="mobile-hide">{{card.type}}</td>
+            <td class="mobile-hide">{{card.rarity[0]}}</td>
             <td>{{card.quantity}}</td>
-            <td>(i)</td>
+            <td>
+                <a ng-click="showDetail(card.name)" title="Info" href="" class="icon info fa fa-lg fa-info-circle"></a>
+                <a ng-click="quickAddByName(card.name)" title="Quick Add" href="" class="mobile-hide icon add fa fa-lg fa-plus-circle"></a>
+            </td>
         </tr>
     </table>
+    <footer class="footer">
+        <section>
+            <a ng-show="pageNum > 1" href="#" ng-click="requestPage(1)">&lt;&lt;</a>
+            <span ng-hide="pageNum > 1">&lt;&lt;</span>
+            <a ng-show="pageNum > 1" href="#" ng-click="requestPage(pageNum - 1)">&lt;</a>
+            <span ng-hide="pageNum > 1">&lt;</span>
+            <span>{{pageNum}} of {{pageMax}}</span>
+            <a ng-show="pageNum &lt; pageMax" href="#" ng-click="requestPage(pageNum + 1)">&gt;</a>
+            <span ng-hide="pageNum &lt; pageMax">&gt;</span>
+            <a ng-show="pageNum &lt; pageMax" href="#" ng-click="requestPage(pageMax)">&gt;&gt;</a>
+            <span ng-hide="pageNum &lt; pageMax">&gt;&gt;</span>
+        </section>
+        <section>
+            ({{results.count}} unique cards total)
+        </section>
+    </footer>
+
+    <div class="card-detail" ng-show="detail.showing" ng-click="detail.showing = false" ng-class="detail.loading ? 'loading' : ''">
+        <div class="card-detail-inner" ng-hide="detail.loading" ng-click="$event.stopPropagation()">
+            <div class="close"><a href="" ng-click="detail.showing = false" class="icon close fa fa-lg fa-times"></a></div>
+            <section class="image">
+                <header class="title">
+                    {{detail.result[0].full.name}}
+                </header>
+                <img ng-src="/image/{{detail.selectedId}}" />
+            </section>
+            <table>
+                <tr ng-repeat="card in detail.result" ng-mouseover="detail.selectedId = card.id">
+                    <td>{{card.expansion}}</td>
+                    <td>x{{card.count}} ({{card.foilcount}} foil)</td>
+                    <td class="mobile-hide">
+                        <a href="" ng-click="quickAddById(card.id)" class="icon add fa fa-lg fa-plus-circle">
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>

@@ -24,8 +24,8 @@ create table if not exists locations(
 create table if not exists collection(
     id integer primary key autoincrement,
     card integer references cards(id) on delete cascade,
-    foil integer,
-    alternate_art integer,
+    foil integer default 0,
+    alternate_art integer default 0,
     condition text,
     location integer references locations(id) on delete set null
 );
@@ -40,6 +40,10 @@ create table if not exists collection_list(
     list integer references list(id) on delete cascade
 );
 
-drop view if exists collection_cards;
-create view collection_cards as select max(card.id) as id, card.name as name, card.manacost as manacost, count(coll.id) as quantity from cards as card
-    inner join collection as coll on card.id = coll.card group by card.name, card.manacost order by card.name asc;
+create view if not exists collection_cards as select max(card.id) as id, card.name as name, card.manacost as manacost, card.type as type, card.rarity as rarity, count(coll.id) as quantity
+    from cards as card
+    inner join collection as coll on card.id = coll.card
+    group by card.name order by card.name asc;
+
+update collection set foil = 0 where foil is null;
+update collection set alternate_art = 0 where alternate_art is null;

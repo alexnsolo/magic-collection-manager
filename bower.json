@@ -4,6 +4,7 @@
         "allmighty-autocomplete": "forana/allmighty-autocomplete",
         "angular": "1.3.*",
         "reset-css": "*",
-        "lodash": "2.4.*"
+        "lodash": "2.4.*",
+        "font-awesome": "4.*"
     }
 }

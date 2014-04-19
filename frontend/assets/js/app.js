@@ -22,11 +22,12 @@ var app = angular.module("mcm-app", ["autocomplete"])
     };
 
     $scope.isActive = function(view) {
-        return $scope.view.view == view ? "active" : false;
+        return $scope.view.name == view ? "active" : false;
     };
 
     $scope.setView = function(viewState) {
         $scope.view = {
+            name: viewState.view,
             template: "/templates/" + viewState.view + ".html",
             params: viewState.params
         };
@@ -61,9 +62,9 @@ var app = angular.module("mcm-app", ["autocomplete"])
     $scope.makeActive($location.path(), true);
 })
 .controller("CollectionController", function($scope, $http) {
-    $scope.currentPage = 1;
-    $scope.pageSize = 30;
-    $scope.availablePageSizes = [15, 30, 50, 100];
+    $scope.pageNum = 1;
+    $scope.pageSize = 25;
+    $scope.availablePageSizes = [15, 25, 50, 100];
     $scope.results = {"count": 0, "cards": []};
     $scope.name = "";
     $scope.sorts = ["alpha", "rarity"];
@@ -75,7 +76,7 @@ var app = angular.module("mcm-app", ["autocomplete"])
     var setRequest = function() {
         request.name = $scope.name;
         request.sort = $scope.sort;
-        request.pageNum = $scope.currentPage;
+        request.pageNum = $scope.pageNum;
         request.pageSize = $scope.pageSize;
     };
 
@@ -85,6 +86,7 @@ var app = angular.module("mcm-app", ["autocomplete"])
         $http.get("/query/collection", {headers: authHeaders, params: request})
         .success(function(data) {
             $scope.results = data;
+            $scope.pageMax = Math.ceil(data.count / $scope.pageSize);
         })
         .error(function(error) {
             console.log(error);
@@ -96,13 +98,13 @@ var app = angular.module("mcm-app", ["autocomplete"])
     };
 
     $scope.requestPage = function(page) {
-        $scope.currentPage = page;
+        $scope.pageNum = page;
         request.pageNum = page;
-        $scope.doRequest();
+        doRequest();
     };
 
     $scope.search = function() {
-        $scope.currentPage = 1;
+        $scope.pageNum = 1;
         setRequest();
         doRequest();
     };
@@ -112,6 +114,30 @@ var app = angular.module("mcm-app", ["autocomplete"])
     $scope.parseCost = function(cost) {
         if (cost == null) return [];
         return cost.substring(1, cost.length - 1).replace(/\//g, "").split("}{");
+    };
+
+    $scope.detail = {};
+    $scope.detail.showing = false;
+    $scope.detail.result = {};
+    $scope.detail.loading = false;
+    $scope.detail.selectedId = 1;
+
+    $scope.showDetail = function(cardName) {
+        $scope.detail.showing = true;
+        $scope.detail.loading = true;
+        $scope.detail.errors = [];
+        $http.get("/query/cardDetail", {headers: authHeaders, params: {"name": cardName}})
+        .success(function(data) {
+            $scope.detail.result = _.sortBy(data.results, function(d) { return d.id; });
+            $scope.detail.selectedId = $scope.detail.result[$scope.detail.result.length - 1].id;
+        })
+        .error(function(err) {
+            $scope.detail.showing = false;
+            $scope.detail.errors.push(err);
+        })
+        .then(function() {
+            $scope.detail.loading = false;
+        });
     };
 })
 .controller("AddController", function($scope, $http, $q) {
